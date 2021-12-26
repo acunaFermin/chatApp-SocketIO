@@ -1,27 +1,34 @@
-<h1>Mensajes</h1>
-<hr>
+<h1 style="color: rgba(255, 255, 255, 0.95)">Mensajes</h1>
+<hr />
 
-<div id="chat-mensajes">
-    <li class="list-group-item" *ngFor="let mensaje of mensajes">
-        {{mensaje.de}}: {{mensaje.cuerpo}}
-    </li>
-
-    
+<div id="chat-mensajes" class="list-group bg-secondary">
+	<li
+		*ngFor="let mensaje of mensajes"
+		[ngClass]="{ 'text-end': mensaje.status }"
+		style="list-style-type: none"
+	>
+		<div
+			[ngClass]="{
+				'bg-success bg-gradient': mensaje.status === true,
+				'bg-light bg-gradient': mensaje.status === false
+			}"
+			class="badge ms-1 me-1"
+			style="color: black; font-weight: normal"
+		>
+			{{ mensaje.mensaje.de }}: {{ mensaje.mensaje.cuerpo }}
+		</div>
+	</li>
 </div>
 
-
 <form (ngSubmit)="enviar()">
-
-
-    <input
-        type="text"
-        [(ngModel)]="texto"
-        class="form-control chat-input"
-        name="texto"
-        placeholder="mensaje..."
-        autofocus
-        autocomplete="off"
-        >
-
-
+	<input
+		type="text"
+		[(ngModel)]="texto"
+		class="form-control chat-input"
+		name="texto"
+		placeholder="mensaje..."
+		autofocus
+		autocomplete="off"
+		style="background-color: rgb(25, 40, 45); color: rgba(255, 255, 255, 0.95)"
+	/>
 </form>

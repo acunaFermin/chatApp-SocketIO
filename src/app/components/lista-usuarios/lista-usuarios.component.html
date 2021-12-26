@@ -1,0 +1,19 @@
+<h1 style="color: rgba(255, 255, 255, 0.95)">Usuarios Conectados</h1>
+
+<hr />
+
+<ul class="list-group">
+	<li
+		class="list-group-item"
+		style="
+			background-color: rgba(0, 0, 0, 0.5);
+			color: rgba(255, 235, 205, 0.9);
+			border-color: rgb(255, 153, 0, 0.5);
+		"
+		*ngFor="let usuario of listaUsuariosConectados | async"
+	>
+		{{ usuario.nombre }} <span style="color: coral"> | </span>
+		{{ usuario.sala }} <span style="color: coral"> | </span> id:
+		{{ usuario.id }}
+	</li>
+</ul>

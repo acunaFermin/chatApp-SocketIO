@@ -1,29 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
 
-
 body {
-    margin-bottom: 100px;
+	margin-bottom: 100px;
+	background-color: rgba(0, 0, 0, 0.9);
 }
 
-
-
-footer{
-    position: fixed;
-    left: 0px;
-    bottom: 0px;
-    width: 100%;
+hr {
+	background-color: rgb(212, 160, 91);
 }
 
-
-
-#chat-mensajes{
-    height: 300px;
-    border: 1px solid gray;
-    border-radius: 5px;
-    overflow-y: scroll;
+footer {
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	width: 100%;
 }
 
+#chat-mensajes {
+	height: 300px;
+	border: 1px solid gray;
+	border-radius: 5px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
 
-.chat-input{
-    margin-top: 10px;
+.chat-input {
+	margin-top: 10px;
+}
+
+.btn-ingresar button {
+	width: 100%;
+}
+
+.bg-success {
+	background-color: rgb(184, 252, 219) !important;
+}
+
+.bg-secondary {
+	background-color: rgba(167, 161, 161, 0.527) !important;
 }

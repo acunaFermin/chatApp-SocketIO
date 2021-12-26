@@ -3,79 +3,61 @@ import { Subscription } from 'rxjs';
 import { ChatService } from 'src/app/servicio/chat.service';
 import { WebsocketService } from 'src/app/servicio/websocket.service';
 
-
 @Component({
-  selector: 'app-chat',
-  templateUrl: './chat.component.html',
-  styles: [
-  ]
+	selector: 'app-chat',
+	templateUrl: './chat.component.html',
+	styles: [],
 })
 export class ChatComponent implements OnInit, OnDestroy {
+	mensajeSubscription!: Subscription;
 
-  mensajeSubscription!: Subscription;
+	mensajes: any[] = [];
 
-  mensajes:any[] = []
+	elemento!: HTMLElement;
 
-  elemento!: HTMLElement;
+	constructor(
+		public chatService: ChatService,
+		public wsService: WebsocketService
+	) {}
 
+	ngOnInit(): void {
+		this.chatService.getMessages();
 
-  constructor(
-    public chatService: ChatService,
-    public wsService: WebsocketService) { 
+		this.mensajeSubscription = this.wsService.mensajeRecibido.subscribe(
+			(msj) => {
+				this.elemento = document.getElementById('chat-mensajes')!;
 
-  }
-  
+				if (localStorage.getItem('user id') == msj.id) {
+					this.push(msj, true);
+				} else {
+					this.push(msj, false);
+				}
+			}
+		);
+	}
 
-  ngOnInit(): void {
+	push(msj: any, status: boolean) {
+		this.mensajes.push({
+			mensaje: msj.payload,
+			status,
+		});
 
-    this.chatService.getMessages()
+		setTimeout(() => {
+			this.elemento.scrollTop = this.elemento.scrollHeight;
+		}, 50);
+	}
 
-    this.mensajeSubscription = this.wsService.mensajeRecibido.subscribe(msj => {
+	ngOnDestroy(): void {
+		this.mensajeSubscription.unsubscribe;
+	}
 
-          this.elemento = document.getElementById('chat-mensajes')!
+	texto: string = '';
 
+	enviar() {
+		if (this.texto.trim().length !== 0) {
+			this.chatService.sendMessage(this.texto);
 
-
-
-
-          this.mensajes.push(msj)
-
-
-
-
-          setTimeout(() => {
-            
-            this.elemento.scrollTop= this.elemento.scrollHeight;
-
-          }, 50);
-
-    })
-
-  }
-
-
-
-  ngOnDestroy(): void {
-    
-    this.mensajeSubscription.unsubscribe;
-
-  }
-
-
-
-
-  texto:string = ''
-
-  enviar(){
-
-    if(this.texto.trim().length !== 0){
-
-      this.chatService.sendMessage(this.texto)
-
-      this.texto = '';
-
-    }
-
-  }
-
+			this.texto = '';
+		}
+	}
 }

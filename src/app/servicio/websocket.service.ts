@@ -1,59 +1,87 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { Usuario } from '../classes/usuario';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
-
-
-
 export class WebsocketService extends Socket {
+	public usuario!: Usuario;
 
-  mensajeRecibido: EventEmitter<any> = new EventEmitter();
+	mensajeRecibido: EventEmitter<any> = new EventEmitter();
+	mensajePrivadoRecibido: EventEmitter<any> = new EventEmitter();
+	usuariosConectados: EventEmitter<{}> = new EventEmitter();
 
-  constructor(){
-    super({
-      url:'http://localhost:5500/'
-    })
+	constructor() {
+		super({
+			url: 'http://localhost:5500/',
+		});
+		this.cargarStorage();
+		this.checkStatus();
+	}
 
-    this.checkStatus();
-  }
+	public socketStatus = false;
 
-  public socketStatus = false;
+	checkStatus() {
+		this.ioSocket.on('connect', () => {
+			console.log('conectado al servidor');
+			this.socketStatus = true;
+			this.cargarStorage();
+		});
 
-  
+		this.ioSocket.on('disconnect', () => {
+			console.log('desconectado al servidor');
+			this.socketStatus = false;
+		});
+	}
 
+	emit(event: string, payload: any) {
+		this.ioSocket.emit(event, payload);
+	}
 
-  checkStatus(){
-    console.log('hola')
+	listen = (evento: any) => {
+		return this.ioSocket.on(evento, (msg: any) => {
+			console.log(msg);
+			if (evento == 'mensaje-nuevo') {
+				this.mensajeRecibido.emit(msg);
+			}
+			if (evento == 'mensaje-privado') {
+				this.mensajePrivadoRecibido.emit(msg);
+			}
+			if (evento == 'usuarios-conectados') {
+				this.usuariosConectados.emit(msg);
+			}
+		});
+	};
 
-    this.ioSocket.on('connect', () => {
-      console.log('conectaado al servidor');
-      this.socketStatus = true;
-    })
+	loginWS(nombre: string) {
+		return new Promise<void>((resolve, reject) => {
+			this.ioSocket.emit('config-usuario', { nombre }, (resp: any) => {
+				console.log(resp);
 
-    this.ioSocket.on('disconnect', () => {
-      console.log('desconectaado al servidor');
-      this.socketStatus = false;
-    })
-  }
+				localStorage.setItem('user id', resp.id);
 
-  emit(event:string, payload: any){
+				this.usuario = new Usuario(nombre);
 
-    console.log('emitiendoooo')
+				this.guardarStorage();
 
-    this.ioSocket.emit(event, payload)
+				resolve();
+			});
+		});
+	}
 
-  }
+	guardarStorage() {
+		localStorage.setItem('usuario', JSON.stringify(this.usuario));
+	}
 
-  listen = ( evento:string ) => {
+	cargarStorage() {
+		if (localStorage.getItem('usuario')) {
+			this.usuario = JSON.parse(localStorage.getItem('usuario')!);
+			this.loginWS(this.usuario.nombre);
+		}
+	}
 
-    return this.ioSocket.on(evento, (msg: any) => {
-
-      this.mensajeRecibido.emit(msg);
-
-    });
-
-  }
-
+	getUsuario() {
+		return this.usuario;
+	}
 }
